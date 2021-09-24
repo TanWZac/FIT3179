@@ -1,0 +1,44 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "title": "COVID-19 Vaccination Rate (24 Sep 2021)",
+    "width": 800,
+    "height": 600,
+    "data": {
+      "url": "https://github.com/WenTanZac0625/FIT3179/blob/main/js/world.geom.json",
+      "format": {
+            "type": "topojson",
+            "feature": "world.geo"
+          }
+    },
+    "transform": [{
+        "lookup": "properties.NAME",
+        "from": {
+          "data": {
+            "url": "https://github.com/owid/covid-19-data/blob/master/public/data/vaccinations/vaccinations.csv"
+          },
+          "key": "location",
+          "fields": ["total_vaccinations"]
+        }
+      },
+      {"calculate": "datum.total_vaccinations + 0.1", "as": "Total Vaccinations"}
+    ],
+    "projection": {
+      "type": "equirectangular"
+    },
+    "mark": {
+      "type": "geoshape"
+      },
+    "encoding": {
+      "color": {
+        "field": "Total Vaccinations",
+        "type": "quantitative",
+        "scale": {"type": "log"}
+      },
+      "tooltip": [
+        {"field": "properties.NAME", "type": "nominal", "title": "Country"},
+        {"field": "Total Vaccinations", "type": "quantitative"}
+      ]
+    }
+  
+  }
+  
