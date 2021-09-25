@@ -1,13 +1,13 @@
 {
     "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-    "title": "COVID-19 Vaccination Rate (24 Sep 2021)",
+    "title": "COVID-19 Vaccination Rate",
     "width": 800,
     "height": 600,
     "data": {
-      "url": "https://github.com/WenTanZac0625/FIT3179/blob/main/js/world.geom.json",
+      "url": "https://raw.githubusercontent.com/WenTanZac0625/FIT3179/main/js/world.geom.json",
       "format": {
             "type": "topojson",
-            "feature": "world.geom"
+            "feature": "Admin-0 country"
           }
     },
     "transform": [
@@ -21,7 +21,7 @@
           "fields": ["TOTAL_VACCINATIONS"]
         }
       },
-      {"calculate": "datum.TOTAL_VACCINATION + 0.1", "as": "Total Vaccinations"}
+      {"calculate": "datum._source.TOTAL_VACCINATIONS + 0.1", "as": "Total Vaccinations"}
     ],
     "projection": {
       "type": "equirectangular"
