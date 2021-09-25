@@ -1,8 +1,8 @@
 {
     "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
     "title": "COVID-19 Vaccination Rate Per 100",
-    "width": 800,
-    "height": 600,
+    "width": 1000,
+    "height": 800,
     "data": {
       "url": "https://raw.githubusercontent.com/WenTanZac0625/FIT3179/main/js/world_map.geom.json",
       "format": {"type": "topojson","feature": "world.geo"}
