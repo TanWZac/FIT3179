@@ -7,20 +7,21 @@
       "url": "https://github.com/WenTanZac0625/FIT3179/blob/main/js/world.geom.json",
       "format": {
             "type": "topojson",
-            "feature": "world.geo"
+            "feature": "world.geom"
           }
     },
-    "transform": [{
+    "transform": [
+      {
         "lookup": "properties.NAME",
         "from": {
           "data": {
-            "url": "https://github.com/owid/covid-19-data/blob/master/public/data/vaccinations/vaccinations.csv"
+            "url": "https://raw.githubusercontent.com/govex/COVID-19/master/data_tables/vaccine_data/global_data/vaccine_data_global.csv"
           },
-          "key": "location",
-          "fields": ["total_vaccinations"]
+          "key": "Country_Region",
+          "fields": ["Doses_admin"]
         }
       },
-      {"calculate": "datum.total_vaccinations + 0.1", "as": "Total Vaccinations"}
+      {"calculate": "datum.Doses_admin + 0.1", "as": "Total Vaccinations"}
     ],
     "projection": {
       "type": "equirectangular"
