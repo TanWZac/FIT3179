@@ -4,10 +4,10 @@
     "width": 800,
     "height": 600,
     "data": {
-      "url": "https://raw.githubusercontent.com/WenTanZac0625/FIT3179/main/js/world.geom.json",
+      "url": "https://raw.githubusercontent.com/WenTanZac0625/FIT3179/main/js/world_map.geom.json",
       "format": {
             "type": "topojson",
-            "feature": "Admin-0 country"
+            "feature": "world.geom"
           }
     },
     "transform": [
@@ -21,7 +21,7 @@
           "fields": ["TOTAL_VACCINATIONS"]
         }
       },
-      {"calculate": "datum._source.TOTAL_VACCINATIONS + 0.1", "as": "Total Vaccinations"}
+      {"calculate": "datum.TOTAL_VACCINATIONS + 0.1", "as": "Total Vaccinations"}
     ],
     "projection": {
       "type": "equirectangular"
