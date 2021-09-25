@@ -15,13 +15,13 @@
         "lookup": "properties.NAME",
         "from": {
           "data": {
-            "url": "https://raw.githubusercontent.com/govex/COVID-19/master/data_tables/vaccine_data/global_data/vaccine_data_global.csv"
+            "url": "https://raw.githubusercontent.com/WenTanZac0625/FIT3179/main/data/Total_vaccination.csv"
           },
-          "key": "Country_Region",
-          "fields": ["Doses_admin"]
+          "key": "COUNTRY",
+          "fields": ["TOTAL_VACCINATIONS"]
         }
       },
-      {"calculate": "datum.Doses_admin + 0.1", "as": "Total Vaccinations"}
+      {"calculate": "datum.TOTAL_VACCINATION + 0.1", "as": "Total Vaccinations"}
     ],
     "projection": {
       "type": "equirectangular"
