@@ -10,6 +10,5 @@ resp = requests.get(url)
 
 data = pd.read_csv("https://covid19.who.int/who-data/vaccination-data.csv")
 result = pd.concat([data['COUNTRY'], data['TOTAL_VACCINATIONS']], axis= 1)
-result.reset_index(drop = True, inplace = True)
-print(result)
+print(result.to_string())
 # result.to_csv("Total_vaccination.csv")
