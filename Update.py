@@ -9,6 +9,6 @@ url = "https://github.com/govex/COVID-19/blob/master/data_tables/vaccine_data/gl
 resp = requests.get(url)
 
 data = pd.read_csv("https://covid19.who.int/who-data/vaccination-data.csv")
-result = pd.concat([data['COUNTRY'], data['TOTAL_VACCINATIONS']], axis= 1)
-print(result.to_string())
-# result.to_csv("Total_vaccination.csv")
+result = pd.concat([data['COUNTRY'], data['TOTAL_VACCINATIONS_PER100']], axis= 1)
+
+result.to_csv("Total_vaccination.csv")
