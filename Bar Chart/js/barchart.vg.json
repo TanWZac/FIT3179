@@ -1,7 +1,8 @@
 {
     "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
     "title": "Regional Vaccination Status",
-    "width": 300,
+    "width": 350,
+    "height": 300,
     "data": {"values":[
         {
           "WHO_REGION": "AFRO",
@@ -56,8 +57,11 @@
           "y": {
             "field": "PERSONS_FULLY_VACCINATED_PER100",
             "type": "quantitative",
-            "axis": {"title": null, "ticks": false}
-          }
+            "axis": {"title": "", "ticks": false, "labelAlign":"right", "grid": false}
+          },
+          "tooltip":[
+              {"field": "PERSONS_FULLY_VACCINATED_PER100", "type": "quantitative", "title": "Fully Vaccinated"}
+          ]
         }
       },
       {
@@ -66,8 +70,11 @@
           "y": {
             "field": "PERSONS_VACCINATED_1PLUS_DOSE_PER100",
             "type": "quantitative",
-            "axis": {"title": null , "ticks": false}
-          }
+            "axis": {"title": "Total Vaccination per Region" , "ticks": false, "labelAlign":"right", "grid": false}
+          },
+          "tooltip":[
+              {"field": "PERSONS_VACCINATED_1PLUS_DOSE_PER100", "type": "quantitative","title":"Half Vaccinated"}
+          ]
         }
       },
       {
@@ -77,11 +84,9 @@
             "field": "legend",
             "scale": {"range": ["lightBlue", "skyblue"]},
             "legend": {"title": null, "symbolType": "square", "orient": "bottom"}
-          },
-          "tooltip":[
-              {"field": "legend", "type": "nominal"}
-          ]
+          }
         }
       }
+      
     ]
   }
