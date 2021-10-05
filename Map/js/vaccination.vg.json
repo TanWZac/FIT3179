@@ -3,6 +3,7 @@
     "title": "COVID-19 Vaccination Rate Per 100",
     "width": 1000,
     "height": 800,
+    "params":[{"name": "zoom_level", "value": 190, "bind":{"input": "range", "min": 190, "max": 300, "step": 10, "name": "Zoom: "}}],
     "data": {
       "url": "https://raw.githubusercontent.com/WenTanZac0625/FIT3179/main/Map/js/world_map.geom.json",
       "format": {"type": "topojson","feature": "world.geo"}
@@ -26,24 +27,23 @@
             "fields": ["TOTAL_VACCINATIONS_PER100"]
           }
         }
-      ],
-
-    "projection": {"type": "equalEarth"},
-    "mark": {"type": "geoshape"},
-    "encoding": {
-      "color": {
-        "field": "TOTAL_VACCINATIONS_PER100",
-        "type": "quantitative",
-        "title": "Total Vaccination",
-        "scale": {"type": "log"}
-      },
-      "tooltip": [
-        {"field": "properties.geounit", "type": "nominal", "title": "Country"},
-        {"field": "TOTAL_VACCINATIONS_PER100", "type": "quantitative", "title": "Total Vaccination"}
-      ]
-    }
-  }    
-]
+        ],
+      "projection": {"type": "equalEarth","scale":{"expr":"zoom_level"}},
+      "mark": {"type": "geoshape"},
+      "encoding": {
+        "color": {
+          "field": "TOTAL_VACCINATIONS_PER100",
+          "type": "quantitative",
+          "title": "Total Vaccination",
+          "scale": {"type": "log"}
+        },
+        "tooltip": [
+          {"field": "properties.geounit", "type": "nominal", "title": "Country"},
+          {"field": "TOTAL_VACCINATIONS_PER100", "type": "quantitative", "title": "Total Vaccination"}
+        ]
+      }
+    }    
+  ]
 }
 
 
