@@ -4,7 +4,7 @@
     "width": 1000,
     "height": 800,
     "data": {
-      "url": "https://raw.githubusercontent.com/WenTanZac0625/FIT3179/main/js/world_map.geom.json",
+      "url": "https://raw.githubusercontent.com/WenTanZac0625/FIT3179/main/Map/js/world_map.geom.json",
       "format": {"type": "topojson","feature": "world.geo"}
     },
     "layer":[
