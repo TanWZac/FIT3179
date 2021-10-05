@@ -1,0 +1,6 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "title": "Regional Vaccination Status",
+    "width": 350,
+    "height": 300
+}
