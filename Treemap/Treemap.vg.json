@@ -1,6 +1,15 @@
 {
     "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
     "title": "Regional Vaccination Status",
-    "width": 350,
-    "height": 300
+    "width": 550,
+    "height": 500,
+    "data":{ "url": "https://raw.githubusercontent.com/WenTanZac0625/FIT3179/main/data/Vaccine_used.csv"},
+    "transform": [
+        {"filter": "datum['Each Country Usage'] >= 15"}
+    ],
+    "mark":{"type": "arc", "innerRadius":80},
+    "encoding": {
+        "color":{"field":"Vaccine", "type":"nominal"},
+        "theta":{"field":"Each Country Usage", "type": "quantitative"}
+    }
 }
