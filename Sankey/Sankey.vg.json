@@ -13,7 +13,6 @@
               {"key": {"from": "Pfizer BioNTech - Comirnaty", "to": "AMRO"}, "total": 39},
               {"key": {"from": "Pfizer BioNTech - Comirnaty", "to": "EMRO"}, "total": 18},
               {"key": {"from": "Pfizer BioNTech - Comirnaty", "to": "EURO"}, "total": 5},
-              {"key": {"from": "Pfizer BioNTech - Comirnaty", "to": "OTHER"}, "total": 0},
               {"key": {"from": "Pfizer BioNTech - Comirnaty", "to": "SEARO"}, "total": 6},
               {"key": {"from": "Pfizer BioNTech - Comirnaty", "to": "WPRO"}, "total": 22},
 
@@ -21,7 +20,6 @@
               {"key": {"from": "Janssen - Ad26.COV 2.5", "to": "AMRO"}, "total": 15},
               {"key": {"from": "Janssen - Ad26.COV 2.5", "to": "EMRO"}, "total": 16},
               {"key": {"from": "Janssen - Ad26.COV 2.5", "to": "EURO"}, "total": 24},
-              {"key": {"from": "Janssen - Ad26.COV 2.5", "to": "OTHER"}, "total": 0},
               {"key": {"from": "Janssen - Ad26.COV 2.5", "to": "SEARO"}, "total": 5},
               {"key": {"from": "Janssen - Ad26.COV 2.5", "to": "WPRO"}, "total": 14},
 
@@ -76,11 +74,11 @@
       "name": "Startnode",
       "source": "Vaccine Used",
       "transform": [
-        {"type": "filter",  "expr": "!groupSelector || groupSelector.from == datum.from || groupSelector.to == datum.to"},
+        {"type": "filter",  "expr": "datum.from || datum.to"},
         {"type": "formula", "expr" : "datum.from+datum.to", "as": "key"},
         {"type": "fold", "fields": ["from", "to"], "as": ["vaccine", "region"]},
-        {"type": "formula", "expr": "datum.vaccine == 'from' ? datum.from + datum.to : datum.to + datum.from", "as": "sortField"},
-        {"type": "stack", "groupby": ["vaccine"], "sort": {"field": "sortField", "order": "descending"}, "field": "size"},
+        {"type": "formula", "expr": "datum.vaccine == 'from' ? datum.from + datum.to : datum.to + datum.from", "as": "Expr"},
+        {"type": "stack", "groupby": ["vaccine"], "sort": {"field": "Expr", "order": "descending"}, "field": "size"},
         {"type": "formula", "expr": "(datum.y0+datum.y1)/2", "as": "yc"}
       ]
     },
@@ -92,8 +90,8 @@
         {"type": "stack", "groupby": ["vaccine"], "sort": {"field": "region", "order": "descending"}, "field": "total"},
         {"type": "formula", "expr": "scale('y', datum.y0)", "as": "scale_y0"},
         {"type": "formula", "expr": "scale('y', datum.y1)", "as": "scale_y1"},
-        {"type": "formula", "expr": "datum.vaccine == 'from'", "as": "rightLabel"},
-        {"type": "formula", "expr": "datum.total/domain('y')[1]", "as": "percentage"}
+        {"type": "formula", "expr": "datum.vaccine == 'from'", "as": "Vax"},
+        {"type": "formula", "expr": "datum.total/domain('y')[1]", "as": "precent"}
       ]
     },
     {
@@ -115,13 +113,13 @@
           "targetY": {"expr": "scale('y', datum.target.yc)"},
           "targetX": {"expr": "scale('x', 'to')"}
         },
-        {"type": "formula", "expr": "range('y')[0]-scale('y', datum.size)","as": "strokeWidth"},
-        {"type": "formula","expr": "datum.size/domain('y')[1]","as": "percentage"}
+        {"type": "formula", "expr": "range('y')[0]-scale('y', datum.size)","as": "strokeSize"},
+        {"type": "formula","expr": "datum.size/domain('y')[1]","as": "precent"}
       ]
     }
   ],
   "scales": [
-    {"name": "x", "type": "band", "range": "width", "domain": ["from", "to"], "paddingInner": 1},
+    {"name": "x", "type": "band", "range": "width", "domain": ["from", "to"],"paddingInner": 0.98},
     {"name": "y", "type": "linear", "range": "height", "domain": {"data": "Startnode", "field": "y1"}},
     {"name": "color", "type": "ordinal", "range": "category", "domain": {"data": "Vaccine Used", "fields": ["from", "to"]}},
     {"name": "vaccineNames", "type": "ordinal","range": ["Vaccine Types", "Region"],"domain": ["from", "to"]}
@@ -132,7 +130,9 @@
 
   ],
   "marks": [
-    {"type": "rect", "from": {"data": "Startnode"},
+    {
+      "type": "rect", 
+      "from": {"data": "Startnode"},
       "encode": {
         "enter": {
           "stroke": {"value": "#fff"},
@@ -145,21 +145,19 @@
       }
     },
     {
-      "type": "path", 
-      "name": "edgeMark", 
+      "type": "path",  
       "from": {"data": "Edges"},
       "clip": true,
       "encode": {
         "update": {
           "stroke": [
-            {"test": "groupSelector && groupSelector.vaccine=='from'", "scale": "color", "field": "to"},
+            {"test": "datum.vaccine =='to'", "scale": "color", "field": "from"},
             {"scale": "color", "field": "from"}
           ],
-          "strokeWidth": {"field": "strokeWidth"},
+          "strokeWidth": {"field": "strokeSize"},
           "path": {"field": "path"},
-          "strokeOpacity": {"signal": "!groupSelector && (Hover.from == datum.from || Hover.to == datum.to) ? 0.8 : 0.2"},
-          "zindex": {"signal": "!groupSelector && (Hover.from == datum.from || Hover.to == datum.to) ? 1 : 0"},
-          "tooltip": {"signal": "datum.from + ' → ' + datum.to + '  ' +  ' (' + format(datum.percentage, '.1%') + ')'"}
+          "strokeOpacity": {"signal": "(Hover.from == datum.from || Hover.to == datum.to) ? 0.8 : 0.2"},
+          "tooltip": {"signal": "datum.from + ' → ' + datum.to + '  ' +  '(' + format(datum.precent, '.1%') + ')' "}
         },
         "hover": {"strokeOpacity": {"value": 1}}
       }
@@ -170,20 +168,13 @@
       "interactive": false,
       "encode": {
         "update": {
-          "x": {"signal": "scale('x', datum.vaccine) + (datum.rightLabel ? bandwidth('x') + 8 : -8)"},
+          "x": {"signal": "scale('x', datum.vaccine) + (datum.Vax ? bandwidth('x') + 10 : -10)"},
           "yc": {"signal": "(datum.scale_y0 + datum.scale_y1)/2"},
-          "align": {"signal": "datum.rightLabel ? 'left' : 'right'"},
+          "align": {"signal": "datum.Vax ? 'left' : 'right'"},
           "baseline": {"value": "middle"},
-          "fontWeight": {"value": "bold"},
-          "text": {"signal": "abs(datum.scale_y0-datum.scale_y1) > 13 ? datum.region : ''"}
+          "text": {"signal": "abs(datum.scale_y0 - datum.scale_y1) ? datum.region : ''"}
         }
       }
-    },
-    {
-      "type": "group",
-      "data": [
-        {"name": "dataForShowAll", "values": [{}], "transform": [{"type": "filter", "expr": "groupSelector"}]}
-      ]
     }
   ],
   "signals": [
@@ -193,14 +184,6 @@
       "on": [
         {"events": "@groupMark:mouseover","update": "{from:datum.vaccine=='from' && datum.region, to:datum.vaccine=='to' && datum.region}"},
         {"events": "mouseout", "update": "{}"}
-      ]
-    },
-    {
-      "name": "groupSelector",
-      "value": false,
-      "on": [
-        {"events": "@groupMark:click!","update": "{vaccine:datum.vaccine, from:datum.vaccine=='from' && datum.region, to:datum.vaccine=='to' && datum.region}"},
-        {"events": [{"type": "click", "markname": "groupReset"},{"type": "dblclick"}],"update": "false"}
       ]
     }
   ]
