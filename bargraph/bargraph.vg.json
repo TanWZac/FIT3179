@@ -1,0 +1,17 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "title": "Vaccine Used by Each Country",
+    "width": 550,
+    "height": 500,
+    "data":{ "url": "https://raw.githubusercontent.com/WenTanZac0625/FIT3179/main/data/Vaccine_used.csv"},
+    "mark":{"type": "bar"},
+    "encoding": {
+        "x":{"field":"Vaccine", "type":"nominal", "axis":{"labelAngle":-90,"ticks":false}},
+        "y":{"field":"Each Country Usage", "type": "quantitative", "sort":"ascending",
+        "axis":{"grid":false, "ticks":false}},
+        "tooltip":[
+            {"field":"Each Country Usage", "type":"quantitative", "title": "Used Country"},
+            {"field":"Vaccine", "type":"nominal", "title":"Vaccine Name"}
+        ]
+    }
+}
