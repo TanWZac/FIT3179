@@ -1,8 +1,22 @@
 {
     "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
     "title": "COVID-19 Vaccination Rate Per 100",
-    "width": 1000,
-    "height": 800,
+    "width": 850,
+    "height": 600,
+    "params": [
+      {
+        "name": "region",
+        "value":"all", 
+        "bind":
+        {
+          "input": "select", 
+          "options":[null,"AFRO","AMRO","EMRO", "WPRO", "EURO", "SEARO", "OTHER"],
+          "labels": ["Show All", "African Region", "Region of the Americas","Eastern Mediterranean Region", "Western Pacific Region",
+          "Europe Region", "South-East Asia Region", "Other Region"], 
+          "name": "Region :"
+        }
+      }
+    ],
     "data": {
       "url": "https://raw.githubusercontent.com/WenTanZac0625/FIT3179/main/Map/js/world_map.geom.json",
       "format": {"type": "topojson","feature": "world.geo"}
@@ -20,14 +34,16 @@
           {"lookup": "properties.geounit",
           "from": {
             "data": {
-              "url": "https://raw.githubusercontent.com/WenTanZac0625/FIT3179/main/data/Total_vaccination(1).csv"
+              "url": "https://raw.githubusercontent.com/WenTanZac0625/FIT3179/main/data/Covid_Regional_Vaccination.csv"
             },
             "key": "COUNTRY",
-            "fields": ["TOTAL_VACCINATIONS_PER100"]
+            "fields": ["TOTAL_VACCINATIONS_PER100", "WHO_REGION"]
           }
-        }
-        ],
+        },
+        {"filter": "region == null || datum.WHO_REGION == region"}
+      ],
       "projection": {"type": "equalEarth"},
+      "selection":{"Region":{"type":"multi", "field":["WHO_REGION"],"bind":"legend"}},
       "mark": {"type": "geoshape"},
       "encoding": {
         "color": {
@@ -35,6 +51,10 @@
           "type": "quantitative",
           "title": "Total Vaccination",
           "scale": {"type": "log"}
+        },
+        "opacity":{
+          "condition":{"selection": "Region", "value": 0.6},
+          "value": 0.2
         },
         "tooltip": [
           {"field": "properties.geounit", "type": "nominal", "title": "Country"},

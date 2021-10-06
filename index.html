@@ -30,12 +30,17 @@
         <p>The first column is used for description while the next two columns are merged and used for visualisation. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Massa sapien faucibus et molestie ac feugiat sed. </p>
       </div>
     </div>
-    <div id="choropleth_map"></div>
-      <script type="text/javascript">
-        var spec2 = "js/vaccination.vg.json";
-        vegaEmbed('#choropleth_map', spec2).then(function(result) {}).catch(console.error);
-      </script>
+    <div id="pure-u-2-3"></div>
+      <div id="vis1" class="vis-container" style = margin-bottom:35px></div>
     </div>
+
+    <script type="text/javascript">
+      var vis1 = "Map/js/vaccination.vg.json";
+      
+      
+      
+      vegaEmbed('#vis1', vis1).then(function(result) {}).catch(console.error);
+    </script>
 
 
 
