@@ -1,16 +1,16 @@
-,Vaccine,Each Country Usage
-0,Beijing CNBG - BBIBP-CorV,70
-1,Janssen - Ad26.COV 2.5,77
-2,Pfizer BioNTech - Comirnaty,94
-3,SII - Covishield,87
-4,AstraZeneca - AZD1222,15
-5,Gamaleya - Sputnik V,41
-6,Moderna - mRNA-1273,66
-7,CanSino - Ad5-nCOV,7
-8,Bharat - Covaxin,11
-9,Beijing CNBG - Inactivated,2
-10,QazVac,1
-11, Sinopharm/HayatVax,1
-12,AstraZeneca - Vaxzevria,84
-13, ZF2001,1
-14,Wuhan CNBG - Inactivated,3
+,AFRO,AMRO,EMRO,EURO,OTHER,SEARO,WPRO
+Pfizer BioNTech - Comirnaty,4,39,18,5,0,6,22
+Janssen - Ad26.COV 2.5,3,15,16,24,0,5,14
+Pfizer BioNTech - Comirnaty,4,39,18,5,0,6,22
+SII - Covishield,39,22,10,0,0,9,7
+AstraZeneca - AZD1222,1,1,0,13,0,0,0
+Gamaleya - Sputnik V,5,11,15,0,0,5,5
+Moderna - mRNA-1273,3,17,9,14,1,7,15
+CanSino - Ad5-nCOV,0,4,1,0,0,0,2
+Bharat - Covaxin,5,1,2,0,0,2,1
+Beijing CNBG - Inactivated,0,0,0,2,0,0,0
+QazVac,0,0,0,1,0,0,0
+Sinopharm/HayatVax,0,0,0,1,0,0,0
+AstraZeneca - Vaxzevria,1,36,15,1,0,8,23
+ZF2001,0,0,0,1,0,0,0
+Wuhan CNBG - Inactivated,0,2,0,0,0,0,1
