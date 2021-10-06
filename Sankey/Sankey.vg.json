@@ -1,356 +1,207 @@
 {
-    "$schema": "https://vega.github.io/schema/vega/v3.0.json",
-    "height": 700,
-    "width": 700,
-    "data": [{"url": "" }
-      {
-        "name": "rawData",
-        "values": {
-          "aggregations": {
-            "table": {
-              "buckets": [
-                {"key": {"stk1": "aa", "stk2": "11"}, "doc_count": 7},
-                {"key": {"stk1": "aa", "stk2": "111"}, "doc_count": 4},
-                {"key": {"stk1": "bb", "stk2": "1111"}, "doc_count": 8}
-              ]
-            }
-          }
-        },
-        "format": {"property": "aggregations.table.buckets"},
-        "transform": [
-          {"type": "formula", "expr": "datum.key.stk1", "as": "stk1"},
-          {"type": "formula", "expr": "datum.key.stk2", "as": "stk2"},
-          {"type": "formula", "expr": "datum.doc_count", "as": "size"}
-        ]
-      },
-      {
-        "name": "nodes",
-        "source": "rawData",
-        "transform": [
-          {
-            "type": "filter",
-            "expr": "!groupSelector || groupSelector.stk1 == datum.stk1 || groupSelector.stk2 == datum.stk2"
-          },
-          {
-            "type": "formula",
-            "expr": "datum.stk1+datum.stk2",
-            "as": "key"
-          },
-          {
-            "type": "fold",
-            "fields": ["stk1", "stk2"],
-            "as": ["stack", "grpId"]
-          },
-          {
-            "type": "formula",
-            "expr": "datum.stack == 'stk1' ? datum.stk1+datum.stk2 : datum.stk2+datum.stk1",
-            "as": "sortField"
-          },
-          {
-            "type": "stack",
-            "groupby": ["stack"],
-            "sort": {"field": "sortField", "order": "descending"},
-            "field": "size"
-          },
-          {
-            "type": "formula",
-            "expr": "(datum.y0+datum.y1)/2",
-            "as": "yc"
-          }
-        ]
-      },
-      {
-        "name": "groups",
-        "source": "nodes",
-        "transform": [
-          {
-            "type": "aggregate",
-            "groupby": ["stack", "grpId"],
-            "fields": ["size"],
-            "ops": ["sum"],
-            "as": ["total"]
-          },
-          {
-            "type": "stack",
-            "groupby": ["stack"],
-            "sort": {"field": "grpId", "order": "descending"},
-            "field": "total"
-          },
-          {
-            "type": "formula",
-            "expr": "scale('y', datum.y0)",
-            "as": "scaledY0"
-          },
-          {
-            "type": "formula",
-            "expr": "scale('y', datum.y1)",
-            "as": "scaledY1"
-          },
-          {
-            "type": "formula",
-            "expr": "datum.stack == 'stk1'",
-            "as": "rightLabel"
-          },
-          {
-            "type": "formula",
-            "expr": "datum.total/domain('y')[1]",
-            "as": "percentage"
-          }
-        ]
-      },
-      {
-        "name": "destinationNodes",
-        "source": "nodes",
-        "transform": [
-          {"type": "filter", "expr": "datum.stack == 'stk2'"}
-        ]
-      },
-      {
-        "name": "edges",
-        "source": "nodes",
-        "transform": [
-          {"type": "filter", "expr": "datum.stack == 'stk1'"},
-          {
-            "type": "lookup",
-            "from": "destinationNodes",
-            "key": "key",
-            "fields": ["key"],
-            "as": ["target"]
-          },
-          {
-            "type": "linkpath",
-            "orient": "horizontal",
-            "shape": "diagonal",
-            "sourceY": {"expr": "scale('y', datum.yc)"},
-            "sourceX": {"expr": "scale('x', 'stk1') + bandwidth('x')"},
-            "targetY": {"expr": "scale('y', datum.target.yc)"},
-            "targetX": {"expr": "scale('x', 'stk2')"}
-          },
-          {
-            "type": "formula",
-            "expr": "range('y')[0]-scale('y', datum.size)",
-            "as": "strokeWidth"
-          },
-          {
-            "type": "formula",
-            "expr": "datum.size/domain('y')[1]",
-            "as": "percentage"
-          }
-        ]
-      }
-    ],
-    "scales": [
-      {
-        "name": "x",
-        "type": "band",
-        "range": "width",
-        "domain": ["stk1", "stk2"],
-        "paddingOuter": 0.05,
-        "paddingInner": 0.95
-      },
-      {
-        "name": "y",
-        "type": "linear",
-        "range": "height",
-        "domain": {"data": "nodes", "field": "y1"}
-      },
-      {
-        "name": "color",
-        "type": "ordinal",
-        "range": "category",
-        "domain": {"data": "rawData", "fields": ["stk1", "stk2"]}
-      },
-      {
-        "name": "stackNames",
-        "type": "ordinal",
-        "range": ["Source", "Destination"],
-        "domain": ["stk1", "stk2"]
-      }
-    ],
-    "axes": [
-      {
-        "orient": "bottom",
-        "scale": "x",
-        "encode": {
-          "labels": {
-            "update": {"text": {"scale": "stackNames", "field": "value"}}
-          }
-        }
-      },
-      {"orient": "left", "scale": "y"}
-    ],
-    "marks": [
-      {
-        "type": "rect",
-        "from": {"data": "nodes"},
-        "encode": {
-          "enter": {
-            "stroke": {"value": "#000"},
-            "strokeWidth": {"value": 2},
-            "width": {"scale": "x", "band": 1},
-            "x": {"scale": "x", "field": "stack"},
-            "y": {"field": "y0", "scale": "y"},
-            "y2": {"field": "y1", "scale": "y"}
-          }
-        }
-      },
-      {
-        "type": "path",
-        "name": "edgeMark",
-        "from": {"data": "edges"},
-        "clip": true,
-        "encode": {
-          "update": {
-            "stroke": [
-              {
-                "test": "groupSelector && groupSelector.stack=='stk1'",
-                "scale": "color",
-                "field": "stk2"
-              },
-              {"scale": "color", "field": "stk1"}
-            ],
-            "strokeWidth": {"field": "strokeWidth"},
-            "path": {"field": "path"},
-            "strokeOpacity": {
-              "signal": "!groupSelector && (groupHover.stk1 == datum.stk1 || groupHover.stk2 == datum.stk2) ? 0.9 : 0.3"
-            },
-            "zindex": {
-              "signal": "!groupSelector && (groupHover.stk1 == datum.stk1 || groupHover.stk2 == datum.stk2) ? 1 : 0"
-            },
-            "tooltip": {
-              "signal": "datum.stk1 + ' → ' + datum.stk2 + '    ' + format(datum.size, ',.0f') + '   (' + format(datum.percentage, '.1%') + ')'"
-            }
-          },
-          "hover": {"strokeOpacity": {"value": 1}}
-        }
-      },
-      {
-        "type": "rect",
-        "name": "groupMark",
-        "from": {"data": "groups"},
-        "encode": {
-          "enter": {
-            "fill": {"scale": "color", "field": "grpId"},
-            "width": {"scale": "x", "band": 1}
-          },
-          "update": {
-            "x": {"scale": "x", "field": "stack"},
-            "y": {"field": "scaledY0"},
-            "y2": {"field": "scaledY1"},
-            "fillOpacity": {"value": 0.6},
-            "tooltip": {
-              "signal": "datum.grpId + '   ' + format(datum.total, ',.0f') + '   (' + format(datum.percentage, '.1%') + ')'"
-            }
-          },
-          "hover": {"fillOpacity": {"value": 1}}
-        }
-      },
-      {
-        "type": "text",
-        "from": {"data": "groups"},
-        "interactive": false,
-        "encode": {
-          "update": {
-            "x": {
-              "signal": "scale('x', datum.stack) + (datum.rightLabel ? bandwidth('x') + 8 : -8)"
-            },
-            "yc": {"signal": "(datum.scaledY0 + datum.scaledY1)/2"},
-            "align": {"signal": "datum.rightLabel ? 'left' : 'right'"},
-            "baseline": {"value": "middle"},
-            "fontWeight": {"value": "bold"},
-            "text": {
-              "signal": "abs(datum.scaledY0-datum.scaledY1) > 13 ? datum.grpId : ''"
-            }
-          }
-        }
-      },
-      {
-        "type": "group",
-        "data": [
-          {
-            "name": "dataForShowAll",
-            "values": [{}],
-            "transform": [{"type": "filter", "expr": "groupSelector"}]
-          }
-        ],
-        "encode": {
-          "enter": {
-            "xc": {"signal": "width/2"},
-            "y": {"value": 30},
-            "width": {"value": 80},
-            "height": {"value": 30}
-          }
-        },
-        "marks": [
-          {
-            "type": "group",
-            "name": "groupReset",
-            "from": {"data": "dataForShowAll"},
-            "encode": {
-              "enter": {
-                "cornerRadius": {"value": 6},
-                "fill": {"value": "#f5f5f5"},
-                "stroke": {"value": "#c1c1c1"},
-                "strokeWidth": {"value": 2},
-                "height": {"field": {"group": "height"}},
-                "width": {"field": {"group": "width"}}
-              },
-              "update": {"opacity": {"value": 1}},
-              "hover": {"opacity": {"value": 0.7}}
-            },
-            "marks": [
-              {
-                "type": "text",
-                "interactive": false,
-                "encode": {
-                  "enter": {
-                    "xc": {"field": {"group": "width"}, "mult": 0.5},
-                    "yc": {
-                      "field": {"group": "height"},
-                      "mult": 0.5,
-                      "offset": 2
-                    },
-                    "align": {"value": "center"},
-                    "baseline": {"value": "middle"},
-                    "fontWeight": {"value": "bold"},
-                    "text": {"value": "Show All"}
-                  }
-                }
-              }
+  "$schema": "https://vega.github.io/schema/vega/v3.0.json",
+  "height": 680,
+  "width": 600,
+  "data": [
+    {
+      "name": "Vaccine Used",
+      "values": {
+        "aggregations": {
+          "table": {
+            "buckets": [
+              {"key": {"from": "Pfizer BioNTech - Comirnaty", "to": "AFRO"}, "total": 4},
+              {"key": {"from": "Pfizer BioNTech - Comirnaty", "to": "AMRO"}, "total": 39},
+              {"key": {"from": "Pfizer BioNTech - Comirnaty", "to": "EMRO"}, "total": 18},
+              {"key": {"from": "Pfizer BioNTech - Comirnaty", "to": "EURO"}, "total": 5},
+              {"key": {"from": "Pfizer BioNTech - Comirnaty", "to": "OTHER"}, "total": 0},
+              {"key": {"from": "Pfizer BioNTech - Comirnaty", "to": "SEARO"}, "total": 6},
+              {"key": {"from": "Pfizer BioNTech - Comirnaty", "to": "WPRO"}, "total": 22},
+
+              {"key": {"from": "Janssen - Ad26.COV 2.5", "to": "AFRO"}, "total": 3},
+              {"key": {"from": "Janssen - Ad26.COV 2.5", "to": "AMRO"}, "total": 15},
+              {"key": {"from": "Janssen - Ad26.COV 2.5", "to": "EMRO"}, "total": 16},
+              {"key": {"from": "Janssen - Ad26.COV 2.5", "to": "EURO"}, "total": 24},
+              {"key": {"from": "Janssen - Ad26.COV 2.5", "to": "OTHER"}, "total": 0},
+              {"key": {"from": "Janssen - Ad26.COV 2.5", "to": "SEARO"}, "total": 5},
+              {"key": {"from": "Janssen - Ad26.COV 2.5", "to": "WPRO"}, "total": 14},
+
+              {"key": {"from": "SII - Covishield", "to": "AFRO"}, "total": 39},
+              {"key": {"from": "SII - Covishield", "to": "AMRO"}, "total": 22},
+              {"key": {"from": "SII - Covishield", "to": "EMRO"}, "total": 10},
+              {"key": {"from": "SII - Covishield", "to": "SEARO"}, "total": 9},
+              {"key": {"from": "SII - Covishield", "to": "WPRO"}, "total": 7},
+
+              {"key": {"from": "AstraZeneca - AZD1222", "to": "AFRO"}, "total": 1},
+              {"key": {"from": "AstraZeneca - AZD1222", "to": "AMRO"}, "total": 1},
+              {"key": {"from": "AstraZeneca - AZD1222", "to": "EURO"}, "total": 13},
+
+              {"key": {"from": "Moderna - mRNA-1273", "to": "AFRO"}, "total": 3},
+              {"key": {"from": "Moderna - mRNA-1273", "to": "AMRO"}, "total": 17},
+              {"key": {"from": "Moderna - mRNA-1273", "to": "EMRO"}, "total": 9},
+              {"key": {"from": "Moderna - mRNA-1273", "to": "EURO"}, "total": 14},
+              {"key": {"from": "Moderna - mRNA-1273", "to": "OTHER"}, "total": 1},
+              {"key": {"from": "Moderna - mRNA-1273", "to": "SEARO"}, "total": 7},
+              {"key": {"from": "Moderna - mRNA-1273", "to": "WPRO"}, "total": 15},
+
+              {"key": {"from": "Gamaleya - Sputnik V", "to": "AFRO"}, "total": 5},
+              {"key": {"from": "Gamaleya - Sputnik V", "to": "AMRO"}, "total": 11},
+              {"key": {"from": "Gamaleya - Sputnik V", "to": "EMRO"}, "total": 15},
+              {"key": {"from": "Gamaleya - Sputnik V", "to": "SEARO"}, "total": 5},
+              {"key": {"from": "Gamaleya - Sputnik V", "to": "WPRO"}, "total": 5},
+
+              {"key": {"from": "AstraZeneca - Vaxzevria", "to": "AFRO"}, "total": 1},
+              {"key": {"from": "AstraZeneca - Vaxzevria", "to": "AMRO"}, "total": 36},
+              {"key": {"from": "AstraZeneca - Vaxzevria", "to": "EMRO"}, "total": 15},
+              {"key": {"from": "AstraZeneca - Vaxzevria", "to": "EURO"}, "total": 1},
+              {"key": {"from": "AstraZeneca - Vaxzevria", "to": "SEARO"}, "total": 8},
+              {"key": {"from": "AstraZeneca - Vaxzevria", "to": "WPRO"}, "total": 23},
+
+              {"key": {"from": "Bharat - Covaxin", "to": "AFRO"}, "total": 5},
+              {"key": {"from": "Bharat - Covaxin", "to": "AMRO"}, "total": 1},
+              {"key": {"from": "Bharat - Covaxin", "to": "EMRO"}, "total": 2},
+              {"key": {"from": "Bharat - Covaxin", "to": "SEARO"}, "total": 2},
+              {"key": {"from": "Bharat - Covaxin", "to": "WPRO"}, "total": 1} 
             ]
           }
-        ]
-      }
-    ],
-    "signals": [
-      {
-        "name": "groupHover",
-        "value": {},
-        "on": [
-          {
-            "events": "@groupMark:mouseover",
-            "update": "{stk1:datum.stack=='stk1' && datum.grpId, stk2:datum.stack=='stk2' && datum.grpId}"
-          },
-          {"events": "mouseout", "update": "{}"}
-        ]
+        }
       },
-      {
-        "name": "groupSelector",
-        "value": false,
-        "on": [
-          {
-            "events": "@groupMark:click!",
-            "update": "{stack:datum.stack, stk1:datum.stack=='stk1' && datum.grpId, stk2:datum.stack=='stk2' && datum.grpId}"
-          },
-          {
-            "events": [
-              {"type": "click", "markname": "groupReset"},
-              {"type": "dblclick"}
-            ],
-            "update": "false"
-          }
-        ]
+      "format": {"property": "aggregations.table.buckets"},
+      "transform": [
+        {"type": "formula", "expr": "datum.key.from", "as": "from"},
+        {"type": "formula", "expr": "datum.key.to", "as": "to"},
+        {"type": "formula", "expr": "datum.total", "as": "size"}
+      ]
+    },
+    {
+      "name": "Startnode",
+      "source": "Vaccine Used",
+      "transform": [
+        {"type": "filter",  "expr": "!groupSelector || groupSelector.from == datum.from || groupSelector.to == datum.to"},
+        {"type": "formula", "expr" : "datum.from+datum.to", "as": "key"},
+        {"type": "fold", "fields": ["from", "to"], "as": ["vaccine", "region"]},
+        {"type": "formula", "expr": "datum.vaccine == 'from' ? datum.from + datum.to : datum.to + datum.from", "as": "sortField"},
+        {"type": "stack", "groupby": ["vaccine"], "sort": {"field": "sortField", "order": "descending"}, "field": "size"},
+        {"type": "formula", "expr": "(datum.y0+datum.y1)/2", "as": "yc"}
+      ]
+    },
+    {
+      "name": "groups",
+      "source": "Startnode",
+      "transform": [
+        {"type": "aggregate", "groupby": ["vaccine", "region"], "fields": ["size"], "ops": ["sum"], "as": ["total"]},
+        {"type": "stack", "groupby": ["vaccine"], "sort": {"field": "region", "order": "descending"}, "field": "total"},
+        {"type": "formula", "expr": "scale('y', datum.y0)", "as": "scale_y0"},
+        {"type": "formula", "expr": "scale('y', datum.y1)", "as": "scale_y1"},
+        {"type": "formula", "expr": "datum.vaccine == 'from'", "as": "rightLabel"},
+        {"type": "formula", "expr": "datum.total/domain('y')[1]", "as": "percentage"}
+      ]
+    },
+    {
+      "name": "Endnode",
+      "source": "Startnode",
+      "transform": [
+        {"type": "filter", "expr": "datum.vaccine == 'to'"}
+      ]
+    },
+    {
+      "name": "Edges",
+      "source": "Startnode",
+      "transform": [
+        {"type": "filter", "expr": "datum.vaccine == 'from'"},
+        {"type": "lookup", "from": "Endnode", "key": "key", "fields": ["key"],"as": ["target"]},
+        {"type": "linkpath", "orient": "horizontal", "shape": "diagonal",
+          "sourceY": {"expr": "scale('y', datum.yc)"},
+          "sourceX": {"expr": "scale('x', 'from') + bandwidth('x')"},
+          "targetY": {"expr": "scale('y', datum.target.yc)"},
+          "targetX": {"expr": "scale('x', 'to')"}
+        },
+        {"type": "formula", "expr": "range('y')[0]-scale('y', datum.size)","as": "strokeWidth"},
+        {"type": "formula","expr": "datum.size/domain('y')[1]","as": "percentage"}
+      ]
+    }
+  ],
+  "scales": [
+    {"name": "x", "type": "band", "range": "width", "domain": ["from", "to"], "paddingInner": 1},
+    {"name": "y", "type": "linear", "range": "height", "domain": {"data": "Startnode", "field": "y1"}},
+    {"name": "color", "type": "ordinal", "range": "category", "domain": {"data": "Vaccine Used", "fields": ["from", "to"]}},
+    {"name": "vaccineNames", "type": "ordinal","range": ["Vaccine Types", "Region"],"domain": ["from", "to"]}
+  ],
+  "axes": [
+    {"orient": "bottom","scale": "x","ticks": false, "grid": false,"encode": {"labels": {"update": {"text": {"scale": "vaccineNames", "field": "value"}}}}},
+    {"orient": "left", "scale": "y", "ticks": false, "grid": false}
+
+  ],
+  "marks": [
+    {"type": "rect", "from": {"data": "Startnode"},
+      "encode": {
+        "enter": {
+          "stroke": {"value": "#fff"},
+          "strokeWidth": {"value": 2},
+          "width": {"scale": "x", "band": 1},
+          "x": {"scale": "x", "field": "vaccine"},
+          "y": {"field": "y0", "scale": "y"},
+          "y2": {"field": "y1", "scale": "y"}
+        }
       }
-    ]
-  }
-  
+    },
+    {
+      "type": "path", 
+      "name": "edgeMark", 
+      "from": {"data": "Edges"},
+      "clip": true,
+      "encode": {
+        "update": {
+          "stroke": [
+            {"test": "groupSelector && groupSelector.vaccine=='from'", "scale": "color", "field": "to"},
+            {"scale": "color", "field": "from"}
+          ],
+          "strokeWidth": {"field": "strokeWidth"},
+          "path": {"field": "path"},
+          "strokeOpacity": {"signal": "!groupSelector && (Hover.from == datum.from || Hover.to == datum.to) ? 0.8 : 0.2"},
+          "zindex": {"signal": "!groupSelector && (Hover.from == datum.from || Hover.to == datum.to) ? 1 : 0"},
+          "tooltip": {"signal": "datum.from + ' → ' + datum.to + '  ' +  ' (' + format(datum.percentage, '.1%') + ')'"}
+        },
+        "hover": {"strokeOpacity": {"value": 1}}
+      }
+    },
+    {
+      "type": "text",
+      "from": {"data": "groups"},
+      "interactive": false,
+      "encode": {
+        "update": {
+          "x": {"signal": "scale('x', datum.vaccine) + (datum.rightLabel ? bandwidth('x') + 8 : -8)"},
+          "yc": {"signal": "(datum.scale_y0 + datum.scale_y1)/2"},
+          "align": {"signal": "datum.rightLabel ? 'left' : 'right'"},
+          "baseline": {"value": "middle"},
+          "fontWeight": {"value": "bold"},
+          "text": {"signal": "abs(datum.scale_y0-datum.scale_y1) > 13 ? datum.region : ''"}
+        }
+      }
+    },
+    {
+      "type": "group",
+      "data": [
+        {"name": "dataForShowAll", "values": [{}], "transform": [{"type": "filter", "expr": "groupSelector"}]}
+      ]
+    }
+  ],
+  "signals": [
+    {
+      "name": "Hover",
+      "value": {},
+      "on": [
+        {"events": "@groupMark:mouseover","update": "{from:datum.vaccine=='from' && datum.region, to:datum.vaccine=='to' && datum.region}"},
+        {"events": "mouseout", "update": "{}"}
+      ]
+    },
+    {
+      "name": "groupSelector",
+      "value": false,
+      "on": [
+        {"events": "@groupMark:click!","update": "{vaccine:datum.vaccine, from:datum.vaccine=='from' && datum.region, to:datum.vaccine=='to' && datum.region}"},
+        {"events": [{"type": "click", "markname": "groupReset"},{"type": "dblclick"}],"update": "false"}
+      ]
+    }
+  ]
+}
