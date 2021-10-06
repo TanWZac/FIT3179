@@ -3,7 +3,6 @@
     "title": "COVID-19 Vaccination Rate Per 100",
     "width": 1000,
     "height": 800,
-    "params":[{"name": "zoom_level", "value": 190, "bind":{"input": "range", "min": 190, "max": 300, "step": 10, "name": "Zoom: "}}],
     "data": {
       "url": "https://raw.githubusercontent.com/WenTanZac0625/FIT3179/main/Map/js/world_map.geom.json",
       "format": {"type": "topojson","feature": "world.geo"}
@@ -28,7 +27,7 @@
           }
         }
         ],
-      "projection": {"type": "equalEarth","scale":{"expr":"zoom_level"}},
+      "projection": {"type": "equalEarth"},
       "mark": {"type": "geoshape"},
       "encoding": {
         "color": {
