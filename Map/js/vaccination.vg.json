@@ -6,7 +6,6 @@
     "params": [
       {
         "name": "region",
-        "value":"all", 
         "bind":
         {
           "input": "select", 
@@ -40,7 +39,7 @@
             "fields": ["TOTAL_VACCINATIONS_PER100", "WHO_REGION"]
           }
         },
-        {"filter": "region == null || datum.WHO_REGION == region"}
+        {"filter": " datum.WHO_REGION == region || region == null"}
       ],
       "projection": {"type": "equalEarth"},
       "selection":{"Region":{"type":"multi", "field":["WHO_REGION"],"bind":"legend"}},
