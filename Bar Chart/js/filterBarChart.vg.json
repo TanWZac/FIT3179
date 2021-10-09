@@ -1,8 +1,8 @@
 {
     "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
     "title": "Regional Vaccination Status",
-    "width": 350,
-    "height": 300,
+    "width": 600,
+    "height": 400,
     "data": {"url": "https://raw.githubusercontent.com/WenTanZac0625/FIT3179/main/data/vaccination_data.csv"},
     "params": [
         {
@@ -13,7 +13,7 @@
               "options":[null,"AFRO","AMRO","EMRO", "WPRO", "EURO", "SEARO", "OTHER"],
               "labels": ["Show All", "African Region", "Region of the Americas","Eastern Mediterranean Region", "Western Pacific Region",
               "Europe Region", "South-East Asia Region", "Other Region"], 
-              "name": "Region :"
+              "name": "Region : "
             }
           }
     ],
