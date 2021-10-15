@@ -1,34 +1,49 @@
-  h1{
+h1{
+  padding-top: 5%;
 	font-weight: 900;
+  font-size: 70px;
   }
   body{
   background-color: lightgray;
   }
   .page{
   width: 1010px;    
-  background-color: white;   
+  background-color: rgb(243, 243, 243);   
   margin: auto;
   padding: 50px;
   padding-top: 35px;
   }
   .vis-container{
 	width: 100%;
+  padding-top: 5%;
+  padding-bottom: 5%;
   }
   .description h2, h1{
-	margin-top:0px;
+	margin-top: 10px;
   }
   .description-right {
-	padding-left: 20px;
-
+  padding-top: 20%;
+	padding-left: 10%;
+  padding-right: 10%;
   }
   .description-left{
-	padding-right: 20px;
+  padding-top: 20%;
+  padding-right: 10%;
+  padding-left: 10%;
   }
   .pure-g{
   background-color:#ffffff;
-	margin-bottom: 50px;
+	margin-bottom: 10%;
   margin-top: 50px;
   }
   .small-font{
 	  font-size: 14px;
+  }
+  p{
+    font-family: 'Nunito', sans-serif;
+    font-size: 17px;
+  }
+  h2{
+    font-family: 'Lora', sans-serif;
+    font-size: 23px;
   }

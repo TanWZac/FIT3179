@@ -1,7 +1,8 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v3.0.json",
+  "title": "Distribution of Vaccine (Region)",
   "width": 600,
-  "height": 600,
+  "height": 550,
   "data": [
     {
       "name": "Vaccine Used",
@@ -67,7 +68,8 @@
       "transform": [
         {"type": "formula", "expr": "datum.key.from", "as": "from"},
         {"type": "formula", "expr": "datum.key.to", "as": "to"},
-        {"type": "formula", "expr": "datum.total", "as": "size"}
+        {"type": "formula", "expr": "datum.total", "as": "size"},
+        {"type": "filter", "expr": "Region == datum.to || Region == 'Show All'"}
       ]
     },
     {
@@ -157,7 +159,7 @@
           "strokeWidth": {"field": "strokeSize"},
           "path": {"field": "path"},
           "strokeOpacity": {"signal": "(Hover.from == datum.from || Hover.to == datum.to) ? 0.8 : 0.2"},
-          "tooltip": {"signal": "datum.from + ' → ' + datum.to + '  ' +  '(' + format(datum.precent, '.1%') + ')' "}
+          "tooltip": {"signal": "datum.from + ' → ' + datum.to + '  ' +  '(' + format(datum.precent, '.1%') + ')' + ' ' + datum.size "}
         },
         "hover": {"strokeOpacity": {"value": 1}}
       }
@@ -185,6 +187,21 @@
         {"events": "@groupMark:mouseover","update": "{from:datum.vaccine=='from' && datum.region, to:datum.vaccine=='to' && datum.region}"},
         {"events": "mouseout", "update": "{}"}
       ]
+    },
+    {
+      "name": "Region",
+      "value": "Show All",
+      "bind":
+      {
+        "input": "select", 
+        "options":["Show All","AFRO","AMRO","EMRO", "WPRO", "EURO", "SEARO", "OTHER"]
+      }
     }
-  ]
+  ],"config": {
+    "axis": {"labelFont": "Nunito"},
+    "legend": {"labelFont":"Nunito"},
+    "header": {"labelFont":"Nunito"},
+    "mark": {"font":"Nunito"},
+    "title":{"font":"Lora","fontSize":20}
+  }
 }
